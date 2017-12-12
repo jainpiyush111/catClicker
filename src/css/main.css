@@ -9,3 +9,7 @@ li {
 #catList {
 	display: inline-flex;
 }
+
+.hidden {
+  visibility: hidden;
+}

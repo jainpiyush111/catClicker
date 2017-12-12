@@ -1,4 +1,5 @@
 var model = {
+	selectedCat: null,
 	cats: [{
 		id: '1000',
 		name: 'Smokey',
@@ -25,6 +26,7 @@ var model = {
 var octopus = {
 	init: function() {
 		view.init();
+		viewAdminPanel.init();
 	},
 	getCats: function() {
 		return model.cats;
@@ -40,6 +42,18 @@ var octopus = {
 	updateCatCount: function(catId) {
 		var selectedCat = this.getCat(catId);
 		selectedCat.count += 1;
+	},
+	updateSelected: function(cat) {
+		model.selectedCat = cat;
+	},
+	getSelectedCat: function() {
+		return model.selectedCat;
+	},
+	updateSelectedCatValues(name, url, count) {
+		var cat = this.getCat(model.selectedCat.id);
+		cat.name = name;
+		cat.img = url;
+		cat.count = Number(count);
 	}
 };
 
@@ -47,13 +61,17 @@ var view = {
 
 	init: function() {
 		this.allCats = octopus.getCats();
+		$('#catList').empty();
 		this.allCats.forEach(function(cat) {
 			var catList = '<li id=' + cat.id + '>' + cat.name + '</li>';
 			$('#catList').append(catList);
 			$('#'+cat.id).click(function(event) {
 				this.render(event.currentTarget.id);
+				octopus.updateSelected(octopus.getCat(event.currentTarget.id));
+				viewAdminPanel.init();
 			}.bind(this));
 		}.bind(this));
+		octopus.updateSelected(octopus.getCat(this.allCats[0].id));
 		this.render(this.allCats[0].id);
 	},
 
@@ -73,4 +91,34 @@ var view = {
 
 };
 
+var viewAdminPanel = {
+	init: function() {
+		this.adminButton = $('[name="admin"]');
+		this.adminView = $('#adminView');
+		this.adminView.addClass('hidden');
+		this.cancelButton = $('[name="cancel"]');
+		this.saveButton = $('[name="save"]');
+
+		this.name = $('[name="catName"]')[0];
+		this.url = $('[name="catUrl"]')[0];
+		this.count = $('[name="catCount"]')[0];
+		this.selectedCat = octopus.getSelectedCat();
+		this.adminButton.click(function(e) {
+			this.adminView.removeClass('hidden');
+			this.render();
+		}.bind(this));
+		this.cancelButton.click(function(e) {
+			this.adminView.addClass('hidden');
+		}.bind(this));
+		this.saveButton.click(function(e) {
+			octopus.updateSelectedCatValues(this.name.value, this.url.value, this.count.value);
+			octopus.init();
+		}.bind(this));
+	},
+	render: function() {
+		this.name.value = this.selectedCat.name;
+		this.url.value = this.selectedCat.img;
+		this.count.value = this.selectedCat.count;
+	}
+}
 octopus.init();
