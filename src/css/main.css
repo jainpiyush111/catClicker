@@ -6,10 +6,6 @@ li {
 	padding: 5px;
 }
 
-#catListDiv {
-	float: left;
-}
-
-#catDesc {
-	float: right;
+#catList {
+	display: inline-flex;
 }
